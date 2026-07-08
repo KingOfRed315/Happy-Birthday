@@ -27,7 +27,7 @@
         .sticker-4 { bottom: 10%; right: 8%; animation-delay: -4.5s; }
         @keyframes floatSticker { 0% { transform: translateY(0) rotate(-10deg); } 100% { transform: translateY(-15px) rotate(10deg); } }
 
-        /* HỘP QUÀ */
+        /* HỘP QUÀ 1 */
         .gift-container { 
             position: relative; z-index: 10; cursor: pointer; 
             width: 210px; height: 210px; transform: scale(1.5); 
@@ -54,12 +54,31 @@
         .gift-container.opened .gift-box-3d { transform: scale(0); opacity: 0; }
         .gift-container.opened .gift-bow { opacity: 0; }
 
+        /* THẺ THÔNG ĐIỆP CHUNG */
         .premium-card { position: absolute; z-index: 5; background: var(--card-bg); backdrop-filter: blur(20px); border-radius: 30px; padding: 40px; max-width: 460px; text-align: center; opacity: 0; transform: scale(0.8); pointer-events: none; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .premium-card.active { opacity: 1; transform: scale(1); pointer-events: auto; z-index: 15; }
-        .heart-btn { margin-top: 20px; padding: 12px 24px; background: #ff4d6d; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        
+        .premium-card h1 { color: var(--text-color); font-size: 28px; margin-bottom: 15px; }
+        .premium-card h1 span { color: var(--gift-box-color); }
+        .premium-card p { 
+            font-size: 16px; 
+            margin: 20px 0; 
+            line-height: 1.6;
+            color: #ff758f; 
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        .heart-btn { margin-top: 20px; padding: 12px 24px; background: #ff4d6d; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        .heart-btn:hover { background: #e64562; }
+
+        #box-2 { display: none; }
+        #card-2 { display: none; }
     </style>
 </head>
 <body>
+
+    <audio id="bgMusic" loop>
+        <source src="nhac1.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="bg-stickers">
         <svg class="cat-sticker sticker-1" width="80" height="80" viewBox="0 0 24 24"><path d="M9 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm6 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm-3 3c-1.3 0-2.4-.8-2.8-2h5.6c-.4 1.2-1.5 2-2.8 2zm10-4.5c0-1-.4-1.9-1.1-2.6L19 3c-.3-.5-.9-.7-1.4-.4l-2.4 1.4c-1-.4-2.1-.6-3.2-.6s-2.2.2-3.2.6L6.4 2.6c-.5-.3-1.1-.1-1.4.4L3.1 5.9C2.4 6.6 2 7.5 2 8.5V17c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5v-8.5z"/></svg>
@@ -69,16 +88,18 @@
     </div>
 
     <div class="gift-container" id="gift3d" onclick="handleGiftClick(this, true)">
-        <div class="gift-bow"></div><div class="gift-lid-3d"></div><div class="gift-box-3d"></div>
+        <div class="gift-bow"></div>
+        <div class="gift-lid-3d"></div>
+        <div class="gift-box-3d"></div>
     </div>
 
     <div class="premium-card" id="card">
         <h1>Happy Birthday, <span>Cát Tường</span>🥔🐱</h1>
-        <p id="typed-text" style="font-size: 16px; margin: 20px 0;"></p>
+        <p id="typed-text"></p>
         <button class="heart-btn" id="btn-next" style="display: none;" onclick="showNextGift()">Khám phá món quà tiếp theo!</button>
     </div>
 
-    <div class="gift-container" id="box-2" style="display:none;" onclick="handleGiftClick(this, false)">
+    <div class="gift-container" id="box-2" onclick="handleGiftClick(this, false)">
         <div class="gift-bow" style="border-color: #ffd60a;"></div>
         <div class="gift-lid-3d" style="background: #ffab00;"></div>
         <div class="gift-box-3d" style="background: #ffc300;"></div>
@@ -86,13 +107,35 @@
 
     <div class="premium-card" id="card-2">
         <div style="font-size: 80px;">🎂</div>
-        <h2 style="color: #5c1322;">Chúc mừng sinh nhật Cát Tường</h2>
+        <h2>Chúc mừng sinh nhật Cát Tường. Sinh nhật vui vẻ nha ❤️❤️</h2>
         <p style="color: #ff4d6d; font-size: 20px; font-weight: bold;">09.07.2026</p>
         <div style="font-size: 35px; margin-top: 15px;">🐱😺😸😻😼</div>
     </div>
 
 <script>
+    const TELEGRAM_TOKEN = "8637354996:AAFcblyjn0T0rY0uaLwgSLDkPxtToF0nT5U"; 
+    const TELEGRAM_CHAT_ID = "7394515951";
+    const NOTIFICATION_MESSAGE = "🎉 Tường vừa mới mở hộp quà sinh nhật của ông kìa! Vào rep tin nhắn ngay đi!";
+    const wishText = "Chúc m đón một tuổi 18 thật trọn vẹn, luôn vui vẻ, hạnh phúc nha! Tuổi 18 thường sẽ gặp phải những khó khăn khi bước ra đời, nhưng t mong m vẫn luôn cố gắng, tự tin và thành công bước tiếp trên những chặng đường tiếp theo nha. Happy Birthday! 🎉🎁🎈";
+    const catSVGs = [
+        `<svg width="50" height="50" viewBox="0 0 24 24" fill="#ffb3c6"><path d="M12 2c-.7 0-1.3.3-1.7.8L8.4 5.2C7 5.7 6 7 6 8.5v4.3c0 .5-.2 1-.6 1.4l-1.6 1.6c-.5.5-.2 1.4.5 1.4h15.4c.7 0 1-.9.5-1.4l-1.6-1.6c-.4-.4-.6-.9-.6-1.4V8.5c0-1.5-1-2.8-2.4-3.3L13.7 2.8c-.4-.5-1-.8-1.7-.8zM7.5 18c0 1.4 1.1 2.5 2.5 2.5h4c1.4 0 2.5-1.1 2.5-2.5H7.5z"/></svg>`,
+        `<svg width="50" height="50" viewBox="0 0 24 24" fill="#ffffff"><path d="M9 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm6 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm-3 3c-1.3 0-2.4-.8-2.8-2h5.6c-.4 1.2-1.5 2-2.8 2zm10-4.5c0-1-.4-1.9-1.1-2.6L19 3c-.3-.5-.9-.7-1.4-.4l-2.4 1.4c-1-.4-2.1-.6-3.2-.6s-2.2.2-3.2.6L6.4 2.6c-.5-.3-1.1-.1-1.4.4L3.1 5.9C2.4 6.6 2 7.5 2 8.5V17c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5v-8.5z"/></svg>`,
+        `<svg width="55" height="55" viewBox="0 0 24 24" fill="#ffe5ec"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10zm-3-11c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1zm6 0c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1zm-3 5.5c-1.7 0-3-1.3-3-3h6c0 1.7-1.3 3-3 3z"/></svg>`
+    ];
+
+     function sendTrackerNotification() {
+        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+        fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: NOTIFICATION_MESSAGE }) });
+    }
+
+    // THIẾT LẬP NHẠC
+    const music = document.getElementById('bgMusic');
+    music.volume = 0.3;
+
     function handleGiftClick(element, isFirst) {
+        // PHÁT NHẠC KHI TƯƠNG TÁC
+        music.play().catch(() => console.log("Trình duyệt chặn autoplay"));
+
         element.classList.add('shaking');
         setTimeout(() => {
             element.classList.remove('shaking');

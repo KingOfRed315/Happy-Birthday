@@ -3,173 +3,670 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Birthday | Cát Tường</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <title>Chúc mừng sinh nhật Tina! 09/07/20227</title>
+    <!-- Thư viện pháo hoa Canvas Confetti (Miễn phí) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.min.js"></script>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #ffccd5 100%);
-            --card-bg: rgba(255, 255, 255, 0.75);
-            --gift-box-color: #ff4d6d;
-            --gift-lid-color: #ff758f;
-            --ribbon-color: #fff;
-            --text-color: #5c1322;
+            --primary-color: #ff4d94;
+            --primary-hover: #e60073;
+            --bg-color: #ffe6f0;
+            --card-bg: #ffffff;
+            --text-color: #d63384;
+            --text-sub: #666666;
+            --accent-pink: #fff0f5;
+            --border-pink: #ffb3d1;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg-gradient); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; position: relative; }
-        
-        /* CÁC CHÚ MÈO NỀN */
-        .bg-stickers { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; pointer-events: none; }
-        .cat-sticker { position: absolute; opacity: 0.12; fill: var(--gift-box-color); animation: floatSticker 6s ease-in-out infinite alternate; }
-        .sticker-1 { top: 10%; left: 8%; }
-        .sticker-2 { top: 15%; right: 10%; animation-delay: -1.5s; }
-        .sticker-3 { bottom: 12%; left: 12%; animation-delay: -3s; }
-        .sticker-4 { bottom: 10%; right: 8%; animation-delay: -4.5s; }
-        @keyframes floatSticker { 0% { transform: translateY(0) rotate(-10deg); } 100% { transform: translateY(-15px) rotate(10deg); } }
-
-        /* HỘP QUÀ 1 */
-        .gift-container { 
-            position: relative; z-index: 10; cursor: pointer; 
-            width: 210px; height: 210px; transform: scale(1.5); 
-            transition: all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        body {
+            background: linear-gradient(135deg, #ffe6f0 0%, #ffcce6 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            overflow: hidden;
+            position: relative;
         }
-        .gift-box-3d { position: absolute; bottom: 0; width: 195px; height: 165px; background: var(--gift-box-color); border-radius: 0 0 12px 12px; left: 7.5px; }
-        .gift-lid-3d { position: absolute; top: 7.5px; width: 210px; height: 52px; background: var(--gift-lid-color); border-radius: 8px; transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s ease; transform-origin: bottom right; }
-        .gift-box-3d::before, .gift-lid-3d::before { content: ''; position: absolute; background: var(--ribbon-color); width: 36px; height: 100%; left: 50%; transform: translateX(-50%); }
-        .gift-bow { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 60px; height: 30px; }
-        .gift-bow::before, .gift-bow::after { content: ''; position: absolute; width: 36px; height: 30px; border: 6px solid var(--ribbon-color); border-radius: 50%; }
-        .gift-bow::before { left: -15px; transform: rotate(-30deg); }
-        .gift-bow::after { right: -15px; transform: rotate(30deg); }
 
-        /* HIỆU ỨNG RUNG */
-        @keyframes shake {
-            0%, 100% { transform: scale(1.5) rotate(0deg); }
-            25% { transform: scale(1.5) rotate(-5deg); }
-            75% { transform: scale(1.5) rotate(5deg); }
+        /* Hiệu ứng trái tim, hoa bay */
+        .falling-element {
+            position: absolute;
+            bottom: -50px;
+            font-size: 20px;
+            animation: flyUp 6s linear infinite;
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
         }
-        .shaking { animation: shake 0.2s infinite; }
 
-        /* MỞ HỘP */
-        .gift-container.opened .gift-lid-3d { transform: translate3d(90px, -180px, 150px) rotateX(45deg) rotateY(45deg) rotateZ(30deg); opacity: 0; }
-        .gift-container.opened .gift-box-3d { transform: scale(0); opacity: 0; }
-        .gift-container.opened .gift-bow { opacity: 0; }
-
-        /* THẺ THÔNG ĐIỆP CHUNG */
-        .premium-card { position: absolute; z-index: 5; background: var(--card-bg); backdrop-filter: blur(20px); border-radius: 30px; padding: 40px; max-width: 460px; text-align: center; opacity: 0; transform: scale(0.8); pointer-events: none; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .premium-card.active { opacity: 1; transform: scale(1); pointer-events: auto; z-index: 15; }
-        
-        .premium-card h1 { color: var(--text-color); font-size: 28px; margin-bottom: 15px; }
-        .premium-card h1 span { color: var(--gift-box-color); }
-        .premium-card p { 
-            font-size: 16px; 
-            margin: 20px 0; 
-            line-height: 1.6;
-            color: #ff758f; 
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(-105vh) scale(1.2) rotate(360deg); opacity: 0; }
         }
-        .heart-btn { margin-top: 20px; padding: 12px 24px; background: #ff4d6d; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
-        .heart-btn:hover { background: #e64562; }
 
-        #box-2 { display: none; }
-        #card-2 { display: none; }
+        .twinkle-star {
+            position: absolute;
+            font-size: 14px;
+            animation: twinkle 2s infinite ease-in-out;
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 35px 25px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(214, 51, 132, 0.15);
+            text-align: center;
+            width: 90%;
+            max-width: 440px;
+            position: relative;
+            z-index: 10;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Trình phát nhạc góc trên */
+        .music-player {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-pink);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border-pink);
+        }
+
+        .music-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--primary-color);
+            padding: 0;
+        }
+
+        .music-player.playing .music-icon {
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 30px;
+            margin-bottom: 12px;
+            font-size: 24px;
+        }
+
+        p {
+            color: var(--text-sub);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(255, 77, 148, 0.3);
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hộp quà ảo */
+        .gift-box-wrapper {
+            margin: 25px auto;
+            cursor: pointer;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .gift-box-wrapper:hover { transform: scale(1.1) rotate(5deg); }
+        .gift-icon {
+            font-size: 80px;
+            animation: bounce 1.5s infinite alternate;
+        }
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-12px); }
+        }
+
+        /* Bánh sinh nhật */
+        .cake-container {
+            position: relative;
+            margin: 20px auto;
+            width: 180px;
+            height: 160px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .candle-section {
+            position: relative;
+            width: 12px;
+            height: 40px;
+            margin-bottom: -5px;
+            z-index: 5;
+        }
+        .candle-stick {
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(45deg, var(--primary-color), var(--primary-color) 5px, #fff 5px, #fff 10px);
+            border-radius: 4px;
+        }
+        .flame {
+            position: absolute;
+            top: -22px;
+            left: -4px;
+            width: 20px;
+            height: 25px;
+            background: radial-gradient(circle, #fffa65 0%, #ffaf40 60%, #ff4d4d 100%);
+            border-radius: 50% 50% 20% 20%;
+            animation: flicker 0.6s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.15) rotate(2deg); }
+        }
+        .flame.blown { display: none; }
+        .cake-cream { width: 140px; height: 35px; background-color: #fff; border-radius: 20px 20px 10px 10px; position: relative; z-index: 3; }
+        .cake-body-layer { width: 150px; height: 50px; background-color: #ff99c2; position: relative; z-index: 2; border-radius: 5px; }
+        .cake-base-layer { width: 180px; height: 55px; background-color: #ff6699; border-radius: 10px 10px 15px 15px; position: relative; z-index: 1; }
+
+        /* Mini-game lật thẻ */
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+        .memory-card {
+            background-color: var(--border-pink);
+            height: 65px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            user-select: none;
+        }
+        .memory-card.flip { background-color: #fff; border: 2px solid var(--primary-color); }
+
+        /* Puzzle */
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            width: 270px;
+            height: 270px;
+            background-color: var(--bg-color);
+            border: 3px solid var(--primary-color);
+            border-radius: 12px;
+            margin: 0 auto 10px auto;
+            padding: 3px;
+        }
+        .puzzle-slot {
+            width: 88px; height: 88px;
+            background-color: var(--accent-pink);
+            border: 1px dashed var(--border-pink);
+            border-radius: 6px;
+        }
+        .pieces-pool {
+            display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+            background-color: var(--accent-pink); padding: 10px; border-radius: 12px;
+            border: 1px solid var(--border-pink);
+            min-height: 85px;
+        }
+        .puzzle-piece {
+            width: 80px; height: 80px;
+            background-image: url('img/tinacattuong.jpg');
+            background-size: 240px 240px;
+            cursor: grab; border-radius: 6px;
+        }
+
+        /* Ghi chú & Form */
+        .note-card {
+            background: var(--accent-pink);
+            padding: 14px;
+            border-radius: 14px;
+            border-left: 5px solid var(--primary-color);
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .input-box {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 1px solid var(--border-pink); margin-bottom: 10px;
+            box-sizing: border-box; font-family: inherit; outline: none;
+        }
+
+        /* Modal tùy chỉnh */
+        .custom-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); display: flex; justify-content: center;
+            align-items: center; z-index: 1000; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .custom-modal.show { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: #fff; padding: 25px; border-radius: 20px; text-align: center; width: 80%; max-width: 300px;
+        }
     </style>
+
+    <!-- Tích hợp Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9yDm0YWmhGRGUTajZkfgW4Y0W03zejFI",
+            authDomain: "tinabirthdaygift.firebaseapp.com",
+            projectId: "tinabirthdaygift",
+            storageBucket: "tinabirthdaygift.firebasestorage.app",
+            messagingSenderId: "548936076783",
+            appId: "1:548936076783:web:b085780fcb94bbc8a4fa1a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.saveFeelingToFirebase = async function() {
+            const nameText = document.getElementById('user-name').value;
+            const feelingText = document.getElementById('user-feeling').value;
+            
+            if (nameText.trim() === "" || feelingText.trim() === "") {
+                showModal("Bạn hãy nhập đầy đủ tên và lời nhắn nhé! 💕");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "feelings"), {
+                    name: nameText, content: feelingText, createdAt: new Date()
+                });
+                showModal("Đã gửi lời nhắn thành công! Cảm ơn bạn nha! 💖");
+                document.getElementById('user-name').value = "";
+                document.getElementById('user-feeling').value = "";
+            } catch (error) {
+                showModal("Có lỗi xảy ra, vui lòng thử lại sau nhé!");
+            }
+        };
+    </script>
 </head>
 <body>
 
-    <audio id="bgMusic" loop>
-        <source src="nhac1.mp3" type="audio/mpeg">
-    </audio>
-
-    <div class="bg-stickers">
-        <svg class="cat-sticker sticker-1" width="80" height="80" viewBox="0 0 24 24"><path d="M9 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm6 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm-3 3c-1.3 0-2.4-.8-2.8-2h5.6c-.4 1.2-1.5 2-2.8 2zm10-4.5c0-1-.4-1.9-1.1-2.6L19 3c-.3-.5-.9-.7-1.4-.4l-2.4 1.4c-1-.4-2.1-.6-3.2-.6s-2.2.2-3.2.6L6.4 2.6c-.5-.3-1.1-.1-1.4.4L3.1 5.9C2.4 6.6 2 7.5 2 8.5V17c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5v-8.5z"/></svg>
-        <svg class="cat-sticker sticker-2" width="70" height="70" viewBox="0 0 24 24"><path d="M12 2c-.7 0-1.3.3-1.7.8L8.4 5.2C7 5.7 6 7 6 8.5v4.3c0 .5-.2 1-.6 1.4l-1.6 1.6c-.5.5-.2 1.4.5 1.4h15.4c.7 0 1-.9.5-1.4l-1.6-1.6c-.4-.4-.6-.9-.6-1.4V8.5c0-1.5-1-2.8-2.4-3.3L13.7 2.8c-.4-.5-1-.8-1.7-.8z"/></svg>
-        <svg class="cat-sticker sticker-3" width="75" height="75" viewBox="0 0 24 24"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10zm-3-11c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1zm6 0c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1zm-3 5.5c-1.7 0-3-1.3-3-3h6c0 1.7-1.3 3-3 3z"/></svg>
-        <svg class="cat-sticker sticker-4" width="85" height="85" viewBox="0 0 24 24"><path d="M9 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm6 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm-3 3c-1.3 0-2.4-.8-2.8-2h5.6c-.4 1.2-1.5 2-2.8 2zm10-4.5c0-1-.4-1.9-1.1-2.6L19 3c-.3-.5-.9-.7-1.4-.4l-2.4 1.4c-1-.4-2.1-.6-3.2-.6s-2.2.2-3.2.6L6.4 2.6c-.5-.3-1.1-.1-1.4.4L3.1 5.9C2.4 6.6 2 7.5 2 8.5V17c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5v-8.5z"/></svg>
+    <!-- Modal thông báo -->
+    <div id="customModal" class="custom-modal">
+        <div class="modal-content">
+            <p id="modalMessage" style="font-weight: bold; margin-bottom: 15px;"></p>
+            <button class="btn" onclick="closeModal()" style="padding: 6px 15px;">Tuyệt vời</button>
+        </div>
     </div>
 
-    <div class="gift-container" id="gift3d" onclick="handleGiftClick(this, true)">
-        <div class="gift-bow"></div>
-        <div class="gift-lid-3d"></div>
-        <div class="gift-box-3d"></div>
-    </div>
+    <div class="container">
+        <!-- Trình phát nhạc -->
+        <div class="music-player" id="musicPlayerWidget">
+            <span class="music-icon">💿</span>
+            <button class="music-btn" id="playMusicBtn" onclick="toggleMusic()">▶</button>
+        </div>
 
-    <div class="premium-card" id="card">
-        <h1>Happy Birthday, <span>Cát Tường</span>🥔🐱</h1>
-        <p id="typed-text"></p>
-        <button class="heart-btn" id="btn-next" style="display: none;" onclick="showNextGift()">Khám phá món quà tiếp theo!</button>
-    </div>
+        <audio id="bgMusic" loop autoplay>
+            <source src="audio/nhac1.mp3" type="audio/mpeg">
+        </audio>
 
-    <div class="gift-container" id="box-2" onclick="handleGiftClick(this, false)">
-        <div class="gift-bow" style="border-color: #ffd60a;"></div>
-        <div class="gift-lid-3d" style="background: #ffab00;"></div>
-        <div class="gift-box-3d" style="background: #ffc300;"></div>
-    </div>
+        <!-- Màn hình 0: Hộp Quà -->
+        <div id="screen-gift" class="screen active">
+            <h1>🎁 Hộp Quà Đặc Biệt 🎁</h1>
+            <p>Có một món quà nhỏ dành cho Tina nè. Bấm mở hộp quà để khám phá nhé!</p>
+            <div class="gift-box-wrapper" onclick="nextScreen('screen-welcome'); typeWriter();">
+                <div class="gift-icon">🎁</div>
+            </div>
+            <br>
+            <button class="btn" onclick="nextScreen('screen-welcome'); typeWriter();">Mở Quà Ngay</button>
+        </div>
 
-    <div class="premium-card" id="card-2">
-        <div style="font-size: 80px;">🎂</div>
-        <h2>Chúc mừng sinh nhật Cát Tường. Sinh nhật vui vẻ nha ❤️</h2>
-        <p style="color: #ff4d6d; font-size: 20px; font-weight: bold;">09.07.2008 --> 09.07.2026</p>
-        <div style="font-size: 35px; margin-top: 15px;">🐱😺😸😻😼</div>
-    </div>
+        <!-- Màn hình 1: Chào mừng -->
+        <div id="screen-welcome" class="screen">
+            <p id="typewriter-text" style="color: var(--primary-color); font-weight: bold; min-height: 24px;"></p>
+            <h1>🌸 Hello Tường Siu Dễ Thương 🌸</h1>
+            <p>Phía sau còn nhiều món quà và thử thách đang đợi Tường á! Bấm vào nút dưới đây để khám phá nhé!</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn" onclick="nextScreen('screen-cake')">Bấm vào đây nè</button>
+                <!-- Đã đồng bộ class="btn" để hai nút có chung một màu sắc và hiệu ứng -->
+                <button class="btn" onclick="nextScreen('screen-journey')">Xem Hành Trình Đồng Hành Cùng Nhau ⏳</button>
+            </div>
+        </div>
 
-<script>
-    const TELEGRAM_TOKEN = "8637354996:AAFcblyjn0T0rY0uaLwgSLDkPxtToF0nT5U"; 
-    const TELEGRAM_CHAT_ID = "7394515951";
-    const NOTIFICATION_MESSAGE = "🎉 Tường vừa mới mở hộp quà sinh nhật của ông kìa! Vào rep tin nhắn ngay đi!";
-    const wishText = "Chúc m đón một tuổi 18 thật trọn vẹn, luôn vui vẻ, hạnh phúc nha! Tuổi 18 thường sẽ gặp phải những khó khăn khi bước ra đời, nhưng t mong m vẫn luôn cố gắng, tự tin và thành công bước tiếp trên những chặng đường tiếp theo nha. Happy Birthday! 🎉🎁🎈";
-    const catSVGs = [
-        `<svg width="50" height="50" viewBox="0 0 24 24" fill="#ffb3c6"><path d="M12 2c-.7 0-1.3.3-1.7.8L8.4 5.2C7 5.7 6 7 6 8.5v4.3c0 .5-.2 1-.6 1.4l-1.6 1.6c-.5.5-.2 1.4.5 1.4h15.4c.7 0 1-.9.5-1.4l-1.6-1.6c-.4-.4-.6-.9-.6-1.4V8.5c0-1.5-1-2.8-2.4-3.3L13.7 2.8c-.4-.5-1-.8-1.7-.8zM7.5 18c0 1.4 1.1 2.5 2.5 2.5h4c1.4 0 2.5-1.1 2.5-2.5H7.5z"/></svg>`,
-        `<svg width="50" height="50" viewBox="0 0 24 24" fill="#ffffff"><path d="M9 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm6 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm-3 3c-1.3 0-2.4-.8-2.8-2h5.6c-.4 1.2-1.5 2-2.8 2zm10-4.5c0-1-.4-1.9-1.1-2.6L19 3c-.3-.5-.9-.7-1.4-.4l-2.4 1.4c-1-.4-2.1-.6-3.2-.6s-2.2.2-3.2.6L6.4 2.6c-.5-.3-1.1-.1-1.4.4L3.1 5.9C2.4 6.6 2 7.5 2 8.5V17c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5v-8.5z"/></svg>`,
-        `<svg width="55" height="55" viewBox="0 0 24 24" fill="#ffe5ec"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10zm-3-11c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1zm6 0c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1zm-3 5.5c-1.7 0-3-1.3-3-3h6c0 1.7-1.3 3-3 3z"/></svg>`
-    ];
-
-     function sendTrackerNotification() {
-        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-        fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: NOTIFICATION_MESSAGE }) });
-    }
-
-    // THIẾT LẬP NHẠC
-    const music = document.getElementById('bgMusic');
-    music.volume = 0.3;
-
-    function handleGiftClick(element, isFirst) {
-        // PHÁT NHẠC KHI TƯƠNG TÁC
-        music.play().catch(() => console.log("Trình duyệt chặn autoplay"));
-
-        element.classList.add('shaking');
-        setTimeout(() => {
-            element.classList.remove('shaking');
-            element.classList.add('opened');
-            confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+        <!-- Màn hình mới: Hành trình đồng hành (05/10/2025) -->
+        <div id="screen-journey" class="screen">
+            <h1>⏳ Hành Trình Đồng Hành Cùng Nhau ⏳</h1>
+            <p>Tính từ ngày 05/10/2025 đến nay, chúng ta đã cùng nhau đi qua:</p>
             
-            setTimeout(() => {
-                element.style.display = 'none';
-                if(isFirst) {
-                    document.getElementById('card').classList.add('active');
-                    typeWriter();
+            <div style="background: var(--accent-pink); padding: 18px; border-radius: 15px; border: 1px solid var(--border-pink); margin: 15px 0;">
+                <span id="days-count" style="font-size: 30px; font-weight: bold; color: var(--primary-color);">0</span> <span style="font-size: 14px;">ngày</span><br>
+                <span id="time-detail" style="font-size: 14px; color: var(--text-sub); margin-top: 5px; display: inline-block;">0 giờ 0 phút 0 giây</span>
+            </div>
+
+            <button class="btn" onclick="nextScreen('screen-welcome')">Quay lại ➔</button>
+        </div>
+
+        <!-- Màn hình: Bánh sinh nhật -->
+        <div id="screen-cake" class="screen">
+            <h1>🎂 Thổi Nến Sinh Nhật 🎂</h1>
+            <p id="cake-instruction">Hãy ước một điều ước và bấm vào ngọn nến để thổi tắt nhé!</p>
+            
+            <div class="cake-container" onclick="blowCandle()">
+                <div class="candle-section" id="candle-section">
+                    <div class="flame" id="candle-flame"></div>
+                    <div class="candle-stick"></div>
+                </div>
+                <div class="cake-cream"></div>
+                <div class="cake-body-layer"></div>
+                <div class="cake-base-layer"></div>
+            </div>
+
+            <div id="cake-success" style="display: none; margin-top: 10px;">
+                <button class="btn" onclick="nextScreen('screen-game1')">Tiếp tục Thử Thách ➔</button>
+            </div>
+        </div>
+
+        <!-- Màn hình: Mini-game lật thẻ -->
+        <div id="screen-game1" class="screen">
+            <h1>Thử Thách: Lật Thẻ 🐱</h1>
+            <p>Tìm đủ 8 cặp biểu tượng giống nhau để mở khóa tiếp theo!</p>
+            <div class="memory-game" id="memory-board"></div>
+            <button id="next-to-game2" class="btn" style="display: none;" onclick="nextScreen('screen-game2'); initPuzzle();">Tiếp tục Xếp Hình ➔</button>
+        </div>
+
+        <!-- Màn hình: Puzzle -->
+        <div id="screen-game2" class="screen">
+            <h1>Kéo Thả Mảnh Ghép 🧩</h1>
+            <p>Kéo các mảnh ghép vào đúng ô trống để hoàn thành bức tranh!</p>
+            <div class="puzzle-board" id="puzzle-board"></div>
+            <div class="pieces-pool" id="pieces-pool"></div>
+            <button id="next-to-notes" class="btn" style="display: none; margin-top: 10px;" onclick="nextScreen('screen-notes')">Xem Ghi Chú Kỷ Niệm 📝</button>
+        </div>
+
+        <!-- Màn hình: Ghi chú kỷ niệm -->
+        <div id="screen-notes" class="screen">
+            <h1>📝 Ghi Chú Kỷ Niệm 📝</h1>
+            <div class="note-card">
+                <h3 style="margin: 0 0 5px 0; color: var(--text-color);">📚 1. Học tập cùng nhau</h3>
+                <p style="margin: 0; font-size: 13px;">Cùng nhau giải bài tập khó và động viên nhau tiến bộ mỗi ngày.</p>
+            </div>
+            <div class="note-card">
+                <h3 style="margin: 0 0 5px 0; color: var(--text-color);">🎮 2. Chơi game cùng nhau</h3>
+                <p style="margin: 0; font-size: 13px;">Những phút giây giải trí thư giãn, cười sảng khoái sau giờ học.</p>
+            </div>
+            <button class="btn" onclick="nextScreen('screen-letter'); typeWriterLetter();">Đến Ô Gửi Lời Nhắn 💌</button>
+        </div>
+
+        <!-- Màn hình: Gửi lời nhắn -->
+        <div id="screen-letter" class="screen">
+            <h1>💌 Gửi Lời Nhắn 💌</h1>
+            <p id="letter-text" style="text-align: left; background: var(--accent-pink); padding: 12px; border-radius: 10px; font-size: 13px; min-height: 70px; border: 1px solid var(--border-pink);"></p>
+            <input type="text" id="user-name" class="input-box" placeholder="Tên của bạn...">
+            <textarea id="user-feeling" class="input-box" rows="2" placeholder="Nhập lời nhắn của bạn..."></textarea>
+            <button class="btn" onclick="saveFeelingToFirebase()">Gửi lời nhắn</button>
+        </div>
+    </div>
+
+    <script>
+        // Modal thông báo
+        function showModal(msg) {
+            document.getElementById('modalMessage').innerText = msg;
+            document.getElementById('customModal').classList.add('show');
+        }
+        function closeModal() {
+            document.getElementById('customModal').classList.remove('show');
+        }
+
+        // Trình phát nhạc
+        const music = document.getElementById('bgMusic');
+        const playBtn = document.getElementById('playMusicBtn');
+        const playerWidget = document.getElementById('musicPlayerWidget');
+        let isPlaying = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            music.volume = 0.5;
+            music.play().then(() => {
+                isPlaying = true;
+                playBtn.innerText = "⏸";
+                playerWidget.classList.add('playing');
+            }).catch(() => {
+                document.addEventListener('click', function autoPlayOnce() {
+                    music.play().then(() => {
+                        isPlaying = true;
+                        playBtn.innerText = "⏸";
+                        playerWidget.classList.add('playing');
+                        document.removeEventListener('click', autoPlayOnce);
+                    });
+                }, { once: true });
+            });
+        });
+
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                playBtn.innerText = "▶";
+                playerWidget.classList.remove('playing');
+            } else {
+                music.play().then(() => {
+                    playBtn.innerText = "⏸";
+                    playerWidget.classList.add('playing');
+                }).catch(e => {});
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Đếm ngày hành trình từ 05/10/2025
+        function updateJourneyTime() {
+            const startDate = new Date('2025-10-05T00:00:00');
+            const now = new Date();
+            const diffTime = now - startDate;
+
+            if (diffTime > 0) {
+                const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+
+                document.getElementById('days-count').innerText = days;
+                document.getElementById('time-detail').innerText = `${hours} giờ ${minutes} phút ${seconds} giây`;
+            }
+        }
+        setInterval(updateJourneyTime, 1000);
+        updateJourneyTime();
+
+        // Thổi nến
+        let isCandleBlown = false;
+        function blowCandle() {
+            if (isCandleBlown) return;
+            isCandleBlown = true;
+            document.getElementById('candle-flame').classList.add('blown');
+            document.getElementById('cake-instruction').innerText = "Tuyệt vời! Happy Birthday Tina! 🎉";
+            document.getElementById('cake-success').style.display = 'block';
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+        }
+
+        // Hiệu ứng bay
+        const symbols = ['💖', '🌸', '✨', '🌷', '💕'];
+        setInterval(() => {
+            const el = document.createElement('div');
+            el.classList.add('falling-element');
+            el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 6000);
+        }, 400);
+
+        // Hiệu ứng gõ chữ
+        const textToType = "✨ Happy birthday Tina! ✨";
+        let charIndex = 0;
+        function typeWriter() {
+            if (charIndex === 0) runTypeWriter();
+        }
+        function runTypeWriter() {
+            if (charIndex < textToType.length) {
+                document.getElementById("typewriter-text").innerHTML += textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(runTypeWriter, 100);
+            }
+        }
+
+        const letterContent = "Chúc Tường sinh nhật tuổi 19 thật vui vẻ, tự tin, hạnh phúc và luôn đạt được những điều tốt đẹp nhất trong cuộc sống! 💖";
+        let letterCharIndex = 0, isLetterStarted = false;
+        function typeWriterLetter() {
+            if (isLetterStarted) return;
+            isLetterStarted = true;
+            runLetterTypeWriter();
+        }
+        function runLetterTypeWriter() {
+            if (letterCharIndex < letterContent.length) {
+                document.getElementById("letter-text").innerHTML += letterContent.charAt(letterCharIndex);
+                letterCharIndex++;
+                setTimeout(runLetterTypeWriter, 40);
+            }
+        }
+
+        function nextScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Mini-game lật thẻ
+        const emojis = ['🐱', '🌸', '🎀', '💖', '👑', '🍬', '🧸', '⭐', '🐱', '🌸', '🎀', '💖', '👑', '🍬', '🧸', '⭐'];
+        let shuffled = emojis.sort(() => 0.5 - Math.random());
+        const board = document.getElementById('memory-board');
+        let hasFlipped = false, lock = false, firstC, secondC, pairs = 0;
+
+        shuffled.forEach(emoji => {
+            const card = document.createElement('div');
+            card.classList.add('memory-card');
+            card.dataset.emoji = emoji;
+            card.innerText = '❓';
+            card.addEventListener('click', function() {
+                if (lock || this === firstC || this.classList.contains('flip')) return;
+                this.classList.add('flip');
+                this.innerText = this.dataset.emoji;
+                if (!hasFlipped) { hasFlipped = true; firstC = this; return; }
+                secondC = this;
+                if (firstC.dataset.emoji === secondC.dataset.emoji) {
+                    pairs++;
+                    firstC = null; secondC = null; hasFlipped = false;
+                    if (pairs === 8) {
+                        document.getElementById('next-to-game2').style.display = 'inline-block';
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                    }
                 } else {
-                    document.getElementById('card-2').style.display = 'block';
-                    setTimeout(() => document.getElementById('card-2').classList.add('active'), 50);
+                    lock = true;
+                    setTimeout(() => {
+                        firstC.classList.remove('flip'); secondC.classList.remove('flip');
+                        firstC.innerText = '❓'; secondC.innerText = '❓';
+                        firstC = null; secondC = null; hasFlipped = false; lock = false;
+                    }, 1000);
                 }
-            }, 800);
-        }, 600);
-    }
+            });
+            board.appendChild(card);
+        });
 
-    function typeWriter(i = 0) {
-        const text = "Chúc m đón một tuổi 18 thật trọn vẹn, luôn vui vẻ, hạnh phúc nha! Tuổi 18 thường sẽ gặp phải những khó khăn khi bước ra đời, nhưng t mong m vẫn luôn cố gắng, tự tin và thành công bước tiếp trên những chặng đường tiếp theo nha. Happy Birthday! 🎉🎁🎈";
-        if (i < text.length) {
-            document.getElementById("typed-text").innerHTML += text.charAt(i);
-            setTimeout(() => typeWriter(i + 1), 50);
-        } else { document.getElementById('btn-next').style.display = 'inline-block'; }
-    }
+        // Puzzle
+        function initPuzzle() {
+            const pBoard = document.getElementById('puzzle-board');
+            const pPool = document.getElementById('pieces-pool');
+            pBoard.innerHTML = ''; pPool.innerHTML = '';
 
-    function showNextGift() {
-        document.getElementById('card').classList.remove('active');
-        setTimeout(() => {
-            document.getElementById('card').style.display = 'none';
-            document.getElementById('box-2').style.display = 'block';
-        }, 800);
-    }
-</script>
+            for (let i = 0; i < 9; i++) {
+                const slot = document.createElement('div');
+                slot.classList.add('puzzle-slot');
+                slot.dataset.index = i;
+                slot.addEventListener('dragover', e => e.preventDefault());
+                slot.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (this.children.length > 0) return;
+                    const pIdx = e.dataTransfer.getData('text/plain');
+                    const piece = document.querySelector(`.puzzle-piece[data-index='${pIdx}']`);
+                    if (piece) { this.appendChild(piece); checkWinPuzzle(); }
+                });
+                pBoard.appendChild(slot);
+            }
+
+            pPool.addEventListener('dragover', e => e.preventDefault());
+            pPool.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const pIdx = e.dataTransfer.getData('text/plain');
+                const piece = document.querySelector(`.puzzle-piece[data-index='${pIdx}']`);
+                if (piece) { pPool.appendChild(piece); checkWinPuzzle(); }
+            });
+
+            let indices = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => 0.5 - Math.random());
+            indices.forEach(index => {
+                const piece = document.createElement('div');
+                piece.classList.add('puzzle-piece');
+                piece.draggable = true;
+                piece.dataset.index = index;
+                let r = Math.floor(index / 3), c = index % 3;
+                piece.style.backgroundPosition = `-${c * 80}px -${r * 80}px`;
+                piece.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', index));
+                pPool.appendChild(piece);
+            });
+        }
+
+        function checkWinPuzzle() {
+            let isWin = true;
+            document.querySelectorAll('.puzzle-slot').forEach(slot => {
+                if (slot.children.length === 0 || slot.dataset.index !== slot.children[0].dataset.index) {
+                    isWin = false;
+                }
+            });
+            if (isWin) {
+                document.getElementById('next-to-notes').style.display = 'inline-block';
+                confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+            }
+        }
+    </script>
 </body>
 </html>

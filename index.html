@@ -76,38 +76,6 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
         }
 
-        /* Trình phát nhạc góc trên */
-        .music-player {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--accent-pink);
-            padding: 6px 14px;
-            border-radius: 30px;
-            border: 1px solid var(--border-pink);
-        }
-
-        .music-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: var(--primary-color);
-            padding: 0;
-        }
-
-        .music-player.playing .music-icon {
-            animation: spin 3s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         h1 {
             color: var(--primary-color);
             margin-top: 30px;
@@ -346,11 +314,7 @@
     </div>
 
     <div class="container">
-        <!-- Trình phát nhạc -->
-        <div class="music-player" id="musicPlayerWidget">
-            <span class="music-icon">💿</span>
-            <button class="music-btn" id="playMusicBtn" onclick="toggleMusic()">▶</button>
-        </div>
+        <!-- Đã ẩn/bỏ nút Phát/Dừng nhạc ở góc trên -->
 
         <audio id="bgMusic" loop autoplay>
             <source src="nhac1.mp3">
@@ -374,7 +338,6 @@
             <p>Phía sau còn nhiều món quà và thử thách đang đợi Tường á! Bấm vào nút dưới đây để khám phá nhé!</p>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <button class="btn" onclick="nextScreen('screen-cake')">Bấm vào đây nè</button>
-                <!-- Đã đồng bộ class="btn" để hai nút có chung một màu sắc và hiệu ứng -->
                 <button class="btn" onclick="nextScreen('screen-journey')">Xem Hành Trình Đồng Hành Cùng Nhau ⏳</button>
             </div>
         </div>
@@ -463,43 +426,20 @@
             document.getElementById('customModal').classList.remove('show');
         }
 
-        // Trình phát nhạc
+        // Tự động phát nhạc nền khi trang tải
         const music = document.getElementById('bgMusic');
-        const playBtn = document.getElementById('playMusicBtn');
-        const playerWidget = document.getElementById('musicPlayerWidget');
-        let isPlaying = false;
 
         window.addEventListener('DOMContentLoaded', () => {
             music.volume = 0.5;
-            music.play().then(() => {
-                isPlaying = true;
-                playBtn.innerText = "⏸";
-                playerWidget.classList.add('playing');
-            }).catch(() => {
+            music.play().catch(() => {
+                // Trình duyệt chặn autoplay nếu chưa có tương tác, sẽ tự phát ngay khi người dùng click bất cứ đâu lần đầu
                 document.addEventListener('click', function autoPlayOnce() {
                     music.play().then(() => {
-                        isPlaying = true;
-                        playBtn.innerText = "⏸";
-                        playerWidget.classList.add('playing');
                         document.removeEventListener('click', autoPlayOnce);
                     });
                 }, { once: true });
             });
         });
-
-        function toggleMusic() {
-            if (isPlaying) {
-                music.pause();
-                playBtn.innerText = "▶";
-                playerWidget.classList.remove('playing');
-            } else {
-                music.play().then(() => {
-                    playBtn.innerText = "⏸";
-                    playerWidget.classList.add('playing');
-                }).catch(e => {});
-            }
-            isPlaying = !isPlaying;
-        }
 
         // Đếm ngày hành trình từ 05/10/2025
         function updateJourneyTime() {
